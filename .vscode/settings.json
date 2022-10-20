@@ -1,0 +1,11 @@
+{
+  
+  "cSpell.words": [
+    "gormmysqldriver",
+    "subscripifylogger"
+  ],
+  "go.toolsEnvVars": {
+    "GOPRIVATE": "dev.azure.com, github.com/organizations/subscripify-private"
+  },
+  
+}

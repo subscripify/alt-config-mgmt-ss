@@ -1,0 +1,775 @@
+openapi: 3.0.3
+info:
+  title: configuration management API  - OpenAPI 3.0
+  description: 'use this to manage configurations.'
+  termsOfService: http://www.subscripify.com/terms/apiusage
+  contact:
+    email: william.ohara@subscripify.com
+  license:
+    name: Private
+    url: http://www.subscripify.com/license
+  version: 0.0.1
+externalDocs:
+  description: Find out more about Subscripify
+  url: http://www.subscripify.com
+servers:
+- url: https://lord-tenant.subscripify.com
+tags:
+- name: tenants
+  description: everything needed to create and manage tenants on the Subscripify platform
+  externalDocs:
+    description: Link to Tenant Architecture Doc
+    url: http://wiki.subscripify.com/tenant-architecture
+- name: subscription
+  description: everything subscriptions
+  externalDocs:
+    description: Find out more about our store
+    url: http://wiki.subscripify.com/tenant-architecture
+paths:
+  /access-config:
+    post:
+      tags:
+      - access-config
+      summary: Add a new access configuration
+      description: Adds a new private or custom access configuration 
+      operationId: addAccessConfig
+      requestBody:
+        description: All data required to create a new access configuration - generates config storage location
+          initial creation state is inactive and remains so until a config is uploaded through the app
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/accessConfigCreateBody'
+                  
+        required: true
+      responses:
+        '200':
+          description: Successful operation returns the new object UUID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/configUUIDCreatedObject'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '406':
+          $ref: '#/components/responses/406'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      security:
+        - tenant_auth:
+          - write
+  /access-config/{targetUUID}:
+    get:
+      summary: returns an access config
+      description: returns an access config object, including its status and upload location
+      tags: 
+        - access-config
+      operationId: getAccessConfig
+      parameters:
+        - $ref: '#/components/parameters/targetUUIDPath'
+      responses:
+        '200':
+          description: return access config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/accessConfigCreateBody'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '406':
+          $ref: '#/components/responses/406'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      security:
+        - tenant_auth:
+          - write
+    patch:
+      summary: updates an access config
+      description: updates an access config
+      tags:
+        - access-config
+      operationId: updateAccessConfig
+      parameters:
+        - $ref: '#/components/parameters/targetUUIDPath'
+      requestBody:
+        description: All data required to start a new super or main  tenant
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/accessConfigPatchBody'
+      responses:
+        '200':
+          description: return updated tenant data
+          content:
+            application/json:
+              schema:
+                oneOf:
+                $ref: '#/components/schemas/accessConfigCreateBody'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '406':
+          $ref: '#/components/responses/406'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      security:
+        - tenant_auth:
+          - write
+    delete:
+      summary: removes an access config
+      description: removes an access config - needs to be deactivated for at least one week before deletion
+      tags:
+        - "access-config"
+      operationId: deleteAccessConfig
+      parameters:
+        - $ref: '#/components/parameters/targetUUIDPath'
+      responses:
+        '200':
+          description: returns deleted access config
+          content:
+            application/json:
+              schema:
+                oneOf:
+                $ref: '#/components/schemas/accessConfigCreateBody'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '406':
+          $ref: '#/components/responses/406'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      security:
+        - tenant_auth:
+          - write  
+  /tenant-config:
+    post:
+      tags:
+      - "tenant-config"
+      summary: Add a new main or super tenant 
+      description: Adds a new tenant to the selected liege tenant in liegeUUID header parameter. The liege UUID must be a lord tenant if creating a super tenant and liege UUID must be a super tenant if creating a main tenant.
+      operationId: addTenantConfig 
+      parameters:
+        - $ref: '#/components/parameters/liegeUUIDHeader'
+      requestBody:
+        description: All data required to start a new super or main  tenant
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tenantConfigCreateBody'
+              
+        required: true
+      responses: 
+        '200':
+          description: Successful operation returns the new object UUID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/configUUIDCreatedObject'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '406':
+          $ref: '#/components/responses/406'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      security:
+        - tenant_auth:
+          - write
+  /tenant-config/{targetUUID}:
+    get:
+      summary: returns a tenant config
+      description: returns a tenant config
+      tags:
+        - "tenant-config"
+      operationId: getTenantConfig
+      parameters:
+        - $ref: '#/components/parameters/targetUUIDPath'
+      responses:
+        '200':
+          description: return tenant config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenantConfigCreateBody'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '406':
+          $ref: '#/components/responses/406'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      security:
+        - tenant_auth:
+          - write
+    patch:
+      summary: updates a tenant config
+      description: updates a tenant config
+      tags:
+        - "tenant-config"
+      operationId: updateTenantConfig
+      parameters:
+        - $ref: '#/components/parameters/targetUUIDPath'
+      requestBody:
+        description: All data required to start a tenant config
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tenantConfigPatchBody'
+      responses:
+        '200':
+          description: return tenant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tenantConfigCreateBody'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '406':
+          $ref: '#/components/responses/406'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      security:
+        - tenant_auth:
+          - write
+    delete:
+      summary: removes a tenant config
+      description: removes a tenant config
+      tags:
+        - "tenant-config"
+      operationId: deleteTenantConfig
+      parameters:
+        - $ref: '#/components/parameters/targetUUIDPath'
+      responses:
+        '200':
+          description: return tenant config
+          content:
+            application/json:
+              schema:
+                oneOf:
+                $ref: '#/components/schemas/tenantConfigCreateBody'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '406':
+          $ref: '#/components/responses/406'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      security:
+        - tenant_auth:
+          - write
+  /search/access-config:
+    get:
+      tags: 
+      - access-config
+      summary: Tenant Search
+      description: Search for access configs based upon the input parameters available
+      operationId: searchAccessConfig
+      parameters:
+        - $ref: '#/components/parameters/liegeUUIDHeader'
+        
+      responses: 
+        '200':
+          description: Successful operation returns matching access config list
+            
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/accessConfigSearchResults'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '406':
+          $ref: '#/components/responses/406'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      security:
+        - tenant_auth:
+          - write
+  /search/tenant-config:
+    get:
+      tags: 
+      - tenant-config
+      summary: Tenant config search
+      description: Search for tenant configs based upon the input parameters available
+      operationId: searchTenantConfig
+      parameters:
+        - $ref: '#/components/parameters/liegeUUIDHeader'
+      responses: 
+        '200':
+          description: Successful operation returns matching tenant config list
+            
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/tenantConfigSearchResults'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '405':
+          $ref: '#/components/responses/405'
+        '409':
+          $ref: '#/components/responses/409'
+        '406':
+          $ref: '#/components/responses/406'
+        '415':
+          $ref: '#/components/responses/415'
+        '429':
+          $ref: '#/components/responses/429'
+        default:
+          $ref: '#/components/responses/default'
+      security:
+        - tenant_auth:
+          - write
+components:
+  parameters:
+    liegeUUIDHeader:
+      name: liegeUUID
+      description: 'Liege is the tenant that manages the target tenant. In the case of adding a tenant, this header is required 
+        and establishes the feudal relationship between the creator tenant and the created tenant. <br><br> In the case of tenant updates or 
+        deletes this field holds the liege of the target tenant. If the two ids do not have the appropriate relationship the action will fail.
+        <br><br>This field is also checked against the identity of the caller. The identity must be a member of the Liege tenant and must have the
+        appropriate permissions.'
+      in: header
+      required: true
+      schema: 
+        type: string
+        pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+    targetUUIDPath:
+      name: targetUUID
+      in: path
+      required: true
+      schema:
+        maxLength: 36
+        pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+        type: string
+        description: 'This is the UUID of the target tenant. The target tenant must belong to the liege tenant in the liegeUUID header.'
+    pageStart:
+      name: pg 
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 99999999999
+        description: 'the page number you wish to show, defaults to 1 if absent. a page is defined as the number of rows in the result set divided by the line count per page.'
+        format: int64
+    recordOnPageCount:
+      name: lc 
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 999999999999
+        description: line count per page- the number of rows per page. 
+        format: int64
+    searchTenantConfigDeploymentTypeQuery:
+      name: dtype 
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          maxLength: 5
+          pattern: ^(lord|super|public)$`
+          description: the tenant config type filter
+        maxItems: 99
+      style: pipeDelimited
+    searchAccessConfigTypeQuery:
+      name: atype 
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          maxLength: 5
+          pattern: ^(custom|private)$`
+          description: the access config type filter
+        maxItems: 99
+      style: pipeDelimited
+    searchUUIDQuery:
+      name: id
+      in: query
+      required: false
+      schema:
+        type: array
+        items: 
+          type: string 
+          maxLength: 36
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          description: config uuid
+        minItems: 1
+        maxItems: 99
+      style: pipeDelimited
+    searchAliasQuery:
+      name: al
+      in: query
+      required: false
+      schema:
+        type: array
+        items:
+          maxLength: 36
+          type: string
+          pattern: '^([a-zA-Z0-9]|(?:[a-zA-Z0-9-]+[a-zA-Z0-9.\s-]*[a-zA-Z0-9-]+))$'
+          description: 'tenant alias - partial or whole tenant alias.'
+        minItems: 1
+        maxItems: 99
+      style: pipeDelimited
+
+  schemas:
+    tenantConfigPatchBody:
+      additionalProperties: false
+      type: object
+      properties:
+        alias: 
+          maxLength: 36
+          pattern: '^([a-zA-Z0-9]|(?:[a-zA-Z0-9]+[a-zA-Z0-9.\s\-]*[a-zA-Z0-9]+))$'
+          type: string
+          description: The alias name does not need to be unique and is used for quick reference when searching in UI. 
+            No starting spaces and no special characters.
+          example: "my alias"
+        tenantConfigDeploymentLevel: 
+          maxLength: 36
+          pattern: ^(super|public)$`
+          type: string
+          description: The deployment level can change between super and public lord tenants can not be downgraded - be sure to understand the ramifications
+          example: "super"   
+    tenantConfigCreateBody:
+      type: object
+      properties:
+        tenantConfigUUID:
+          maxLength: 36
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          type: string
+          description: The config UUID to use for the new config. Must be a valid services config UUID
+        configAlias: 
+          maxLength: 36
+          pattern: '^([a-zA-Z0-9]|(?:[a-zA-Z0-9]+[a-zA-Z0-9.\s\-]*[a-zA-Z0-9]+))$'
+          type: string
+          description: The alias name does not need to be unique and is used for quick reference when searching in UI. 
+            No starting spaces and no special characters.
+          example: "my config alias"
+        configLocation: 
+          maxLength: 5
+          pattern: '(Azure|GCP|AWS)'
+          type: string
+          description: the cloud provider location.
+          example: "Azure"
+        ownerUUID:
+          maxLength: 36
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          type: string
+          description: Tthe UUID for the owning tenant. This config can only be applied to the owner tenant or any of its vassal tenants
+        createdBy:
+          type: string
+          maxLength: 225
+          pattern: (?:[a-z0-9!#$%&'*+/=?^_\x60{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_\x60{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])
+          description: the person who created the tenant
+        deploymentLevel: 
+          maxLength: 5
+          pattern: '(lord|super|public)'
+          type: string
+          description: the deployment level of the new config.
+          example: "lord"
+      additionalProperties: false
+    accessConfigPatchBody:
+      additionalProperties: false
+      type: object
+      properties:
+        alias: 
+          maxLength: 36
+          pattern: '^([a-zA-Z0-9]|(?:[a-zA-Z0-9]+[a-zA-Z0-9.\s\-]*[a-zA-Z0-9]+))$'
+          type: string
+          description: The alias name does not need to be unique and is used for quick reference when searching in UI. 
+            No starting spaces and no special characters.
+          example: "my alias"
+        accessConfigDeploymentLevel: 
+          maxLength: 36
+          pattern: ^(custom|private)$`
+          type: string
+          description: The access level can change
+          example: "custom"   
+    accessConfigCreateBody:
+      type: object
+      properties:
+        accessConfigUUID:
+          maxLength: 36
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          type: string
+          description: The config UUID to use for the new config. Must be a valid services config UUID
+        configAlias: 
+          maxLength: 36
+          pattern: '^([a-zA-Z0-9]|(?:[a-zA-Z0-9]+[a-zA-Z0-9.\s\-]*[a-zA-Z0-9]+))$'
+          type: string
+          description: The alias name does not need to be unique and is used for quick reference when searching in UI. 
+            No starting spaces and no special characters.
+          example: "my config alias"
+        configLocation: 
+          maxLength: 5
+          pattern: '(Azure|GCP|AWS)'
+          type: string
+          description: the cloud provider location.
+          example: "Azure"
+        ownerUUID:
+          maxLength: 36
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          type: string
+          description: Tthe UUID for the owning tenant. This config can only be applied to the owner tenant or any of its vassal tenants
+        createdBy:
+          type: string
+          maxLength: 225
+          pattern: (?:[a-z0-9!#$%&'*+/=?^_\x60{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_\x60{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])
+          description: the person who created the tenant
+        accessType: 
+          maxLength: 5
+          pattern: '(custom|private)'
+          type: string
+          description: the deployment level of the new config.
+          example: "lord"
+      additionalProperties: false    
+    configUUIDCreatedObject:
+      additionalProperties: false
+      type: object
+      properties:
+        tenantUUID:
+          type: string
+          maxLength: 36
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+    tenantConfigSearchResults:
+      additionalProperties: false
+      type: object
+      properties:
+        paging:
+          additionalProperties: false
+          type: object
+          properties:
+            pageCount:
+              type: integer
+              description: the number of pages based upon the number of items per page requested
+            previous: 
+              type: string
+              maxLength: 2048
+              pattern: '[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
+              description: the url of the previous page in a series
+            next:
+              type: string
+              maxLength: 2048
+              pattern: '[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
+              description: the url of the next page in a series
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/tenantConfigCreateBody'
+          maxItems: 100
+    accessConfigSearchResults:
+      additionalProperties: false
+      type: object
+      properties:
+        paging:
+          additionalProperties: false
+          type: object
+          properties:
+            pageCount:
+              type: integer
+              description: the number of pages based upon the number of items per page requested
+            previous: 
+              type: string
+              maxLength: 2048
+              pattern: '[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
+              description: the url of the previous page in a series
+            next:
+              type: string
+              maxLength: 2048
+              pattern: '[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)'
+              description: the url of the next page in a series
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/accessConfigCreateBody'
+          maxItems: 100
+    httpResponseMessage:
+      type: object
+      properties:
+        responseCode:
+          type: integer
+        message:
+          maxLength: 200
+          type: string
+          pattern: '^([a-zA-Z0-9]|(?:[a-zA-Z0-9-]+[a-zA-Z0-9\s-]*[a-zA-Z0-9\s-]+))$'
+      additionalProperties: false    
+  responses:
+    '401':
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/httpResponseMessage'
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/httpResponseMessage'
+    '404':
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/httpResponseMessage'
+    '405':
+      description: Invalid method
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/httpResponseMessage'
+    '406':
+      description: Improper Protocol
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/httpResponseMessage'
+    '409':
+      description: Resource Already Exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/httpResponseMessage'
+    '415':
+      description: Improper media type
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/httpResponseMessage'
+    '429':
+      description: too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/httpResponseMessage'
+    default:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/httpResponseMessage'
+  securitySchemes:
+    tenant_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://auth.subscripify.com/oauth/authorize
+          scopes:
+            write:tenant: create tenants 
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
+
