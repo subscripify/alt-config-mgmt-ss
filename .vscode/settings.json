@@ -5,7 +5,7 @@
     "subscripifylogger"
   ],
   "go.toolsEnvVars": {
-    "GOPRIVATE": "dev.azure.com, github.com/organizations/subscripify-private"
+    "GOPRIVATE": "dev.azure.com, github.com/subscripify-private"
   },
   
 }
